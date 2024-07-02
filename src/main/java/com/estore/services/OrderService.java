@@ -21,6 +21,6 @@ public interface OrderService {
 
 	List<OrderDTO> getOrderByUser(String userId);
 
-	PageableResponse<OrderDTO> getAllOrders(Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
+	PageableResponse<OrderDTO> getAllOrders(int pageNumber, int pageSize, String sortBy, String sortDir);
 
 }

@@ -3,9 +3,8 @@ package com.estore.controller;
 import java.util.List;
 import java.util.Set;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,14 +43,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "PRODUCT_CONTROLLER", description = "API's related to perform product crud operation.")
 public class ProductController {
 
-	@Autowired
-	private ProductServiceImpl productService;
+	private final ProductServiceImpl productService;
 
-	@Autowired
-	private FileServiceImpl fileService;
+	private final FileServiceImpl fileService;
 
-	@Value("${product.image.path}")
-	private String path;
+	private final String path;
+
+	public ProductController(ProductServiceImpl productService, FileServiceImpl fileService,
+							 @Value("${product.image.path}")String path) {
+		this.productService = productService;
+		this.fileService = fileService;
+		this.path = path;
+	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(
@@ -60,7 +63,7 @@ public class ProductController {
 			responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "201", description = "Product Created Succesfully!", 
+			@ApiResponse(responseCode = "201", description = "Product Created Successfully!",
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 201, \"Status\" : \"Created!\", \"Message\" :\"Product Created!\"}") })) })
 	@PostMapping(value = "/", consumes = "multipart/form-data")
@@ -72,7 +75,7 @@ public class ProductController {
 		Set<Images> images = this.fileService.uploadFile(files, path);
 		productDto.setProductImages(images);
 		ProductDTO product = this.productService.createProduct(productDto);
-		return new ResponseEntity<ProductDTO>(product, HttpStatus.CREATED);
+		return new ResponseEntity<>(product, HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
@@ -82,7 +85,7 @@ public class ProductController {
 			responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "201", description = "Product Created Succesfully!", 
+			@ApiResponse(responseCode = "201", description = "Product Created Successfully!",
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 201, \"Status\" : \"Created!\", \"Message\" :\"Product Created!\"}") })) })
 	@PostMapping(value = "/subCategory/{subCategoryId}", consumes = "multipart/form-data")
@@ -94,7 +97,7 @@ public class ProductController {
 		Set<Images> images = this.fileService.uploadFile(files, path);
 		productDto.setProductImages(images);
 		ProductDTO product = this.productService.createProduct(productDto, subCategoryId);
-		return new ResponseEntity<ProductDTO>(product, HttpStatus.CREATED);
+		return new ResponseEntity<>(product, HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
@@ -104,7 +107,7 @@ public class ProductController {
 			responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "201", description = "Product Updated Succesfully!", 
+			@ApiResponse(responseCode = "201", description = "Product Updated Successfully!",
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 201, \"Status\" : \"Created!\", \"Message\" :\"Product Updated!\"}") })) })
 	@PutMapping(value = "/{productId}", consumes = "multipart/form-data")
@@ -117,7 +120,7 @@ public class ProductController {
 		Set<Images> images = this.fileService.uploadFile(files, path);
 		productDto.setProductImages(images);
 		ProductDTO product = this.productService.updateProduct(productDto, productId);
-		return new ResponseEntity<ProductDTO>(product, HttpStatus.CREATED);
+		return new ResponseEntity<>(product, HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
@@ -127,14 +130,14 @@ public class ProductController {
 			responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "201", description = "Product Category Updated Succesfully!", 
+			@ApiResponse(responseCode = "201", description = "Product Category Updated Successfully!",
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 201, \"Status\" : \"Created!\", \"Message\" :\"Product Category Updated!\"}") })) })
 	@PutMapping("/{productId}/subCategory/{subCategoryId}")
 	public ResponseEntity<ProductDTO> updateProductCategory(@PathVariable String productId,
 			@PathVariable String subCategoryId) {
 		ProductDTO product = this.productService.updateSubCategory(productId, subCategoryId);
-		return new ResponseEntity<ProductDTO>(product, HttpStatus.CREATED);
+		return new ResponseEntity<>(product, HttpStatus.CREATED);
 
 	}
 
@@ -145,14 +148,14 @@ public class ProductController {
 			responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "200", description = "Product Deleted Succesfully!", 
+			@ApiResponse(responseCode = "200", description = "Product Deleted Successfully!",
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"Product Deleted!\"}") })) })
 	@DeleteMapping("/{productId}")
 	public ResponseEntity<ApiResponses> deleteProduct(@PathVariable String productId) {
 		this.productService.deleteProduct(productId);
-		return new ResponseEntity<ApiResponses>(new ApiResponses("Product Deleted Successfully.", HttpStatus.OK),
-				HttpStatus.OK);
+		return new ResponseEntity<>(new ApiResponses("Product Deleted Successfully.", HttpStatus.OK),
+                HttpStatus.OK);
 	}
 
 	@GetMapping("/{productId}")
@@ -166,7 +169,7 @@ public class ProductController {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"Product Fetched!\"}") })) })
 	public ResponseEntity<ProductDTO> getProductById(@PathVariable String productId) {
 		ProductDTO product = this.productService.getByProductId(productId);
-		return new ResponseEntity<ProductDTO>(product, HttpStatus.OK);
+		return new ResponseEntity<>(product, HttpStatus.OK);
 	}
 
 	@GetMapping("/search/{keyword}")
@@ -180,7 +183,7 @@ public class ProductController {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"OK!\"}") })) })
 	public ResponseEntity<List<ProductDTO>> searchProduct(@PathVariable String keyword) {
 		List<ProductDTO> products = this.productService.searchProduct(keyword);
-		return new ResponseEntity<List<ProductDTO>>(products, HttpStatus.OK);
+		return new ResponseEntity<>(products, HttpStatus.OK);
 	}
 
 	@GetMapping("/active")
@@ -193,13 +196,13 @@ public class ProductController {
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"OK!\"}") })) })
 	public ResponseEntity<PageableResponse<ProductDTO>> getAllActiveProducts(
-			@RequestParam(value = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
-			@RequestParam(value = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
+			@RequestParam(value = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) int pageNumber,
+			@RequestParam(value = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) int pageSize,
 			@RequestParam(value = "sortBy", defaultValue = AppConstant.PRODUCT_SORT_BY, required = false) String sortBy,
 			@RequestParam(value = "sortDir", defaultValue = AppConstant.SORT_DIR, required = false) String sortDir) {
 		PageableResponse<ProductDTO> response = this.productService.getAllActiveProduct(pageNumber, pageSize, sortBy,
 				sortDir);
-		return new ResponseEntity<PageableResponse<ProductDTO>>(response, HttpStatus.OK);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	@GetMapping()
@@ -212,12 +215,12 @@ public class ProductController {
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"OK!\"}") })) })
 	public ResponseEntity<PageableResponse<ProductDTO>> getAllProducts(
-			@RequestParam(value = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
-			@RequestParam(value = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
+			@RequestParam(value = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) int pageNumber,
+			@RequestParam(value = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) int pageSize,
 			@RequestParam(value = "sortBy", defaultValue = AppConstant.PRODUCT_SORT_BY, required = false) String sortBy,
 			@RequestParam(value = "sortDir", defaultValue = AppConstant.SORT_DIR, required = false) String sortDir) {
 		PageableResponse<ProductDTO> response = this.productService.getAllProduct(pageNumber, pageSize, sortBy,
 				sortDir);
-		return new ResponseEntity<PageableResponse<ProductDTO>>(response, HttpStatus.OK);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

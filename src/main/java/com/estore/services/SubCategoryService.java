@@ -21,6 +21,6 @@ public interface SubCategoryService {
 
 	List<SubCategoryDTO > searchSubCategory(String keyword);
 
-	PageableResponse<SubCategoryDTO> getAllSubCategory(Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
+	PageableResponse<SubCategoryDTO> getAllSubCategory(int pageNumber, int pageSize, String sortBy, String sortDir);
 
 }

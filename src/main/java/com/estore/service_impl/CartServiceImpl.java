@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.estore.custom_exception.ApiException;
@@ -27,26 +25,29 @@ import com.estore.utility.AddToCartRequest;
 @Service
 public class CartServiceImpl implements CartService {
 
-	@Autowired
-	private UserRepositiry userRepo;
+	private final UserRepositiry userRepo;
 
-	@Autowired
-	private ProductRepository productRepo;
+	private final ProductRepository productRepo;
 
-	@Autowired
-	private CartRepository cartRepo;
+	private final CartRepository cartRepo;
 
-	@Autowired
-	private CartItemRepository itemRepo;
+	private final CartItemRepository itemRepo;
 
-	@Autowired
-	private ModelMapper modelMapper;
+	private final ModelMapper modelMapper;
+
+	public CartServiceImpl(UserRepositiry userRepo, ProductRepository productRepo, CartRepository cartRepo, CartItemRepository itemRepo, ModelMapper modelMapper) {
+		this.userRepo = userRepo;
+		this.productRepo = productRepo;
+		this.cartRepo = cartRepo;
+		this.itemRepo = itemRepo;
+		this.modelMapper = modelMapper;
+	}
 
 	@Override
 	public CartDTO addToCart(String userId, AddToCartRequest request) {
 
 		String productId = request.getProductId();
-		Integer quantity = request.getQuantity();
+		int quantity = request.getQuantity();
 
 		if (quantity <= 0) {
 			throw new ApiException("Requested Quantity is Not Valid !!");
@@ -58,9 +59,9 @@ public class CartServiceImpl implements CartService {
 		User user = this.userRepo.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User Not Exist With ID: " + userId));
 
-		Cart cart = null;
+		Cart cart;
 		try {
-			cart = this.cartRepo.findByUser(user).get();
+			cart = this.cartRepo.findByUser(user).orElseThrow(() -> new ResourceNotFoundException("User Not Exist"));
 		} catch (NoSuchElementException e) {
 			cart = new Cart();
 			cart.setCartId(generateRandomId());
@@ -68,16 +69,15 @@ public class CartServiceImpl implements CartService {
 
 		AtomicReference<Boolean> updated = new AtomicReference<>(false);
 		List<CartItem> items = cart.getCartItems();
-		items = items.stream().map(item -> {
+		items.forEach(item -> {
 			if (item.getProduct().getProductId().equals(productId)) {
 				item.setQuantity(quantity);
 				item.setTotalPrice(quantity * product.getDiscountedPrice());
 				updated.set(true);
 			}
-			return item;
-		}).collect(Collectors.toList());
+		});
 
-		if (!updated.get()) {
+        if (!updated.get()) {
 			CartItem cartItem = CartItem.builder()
 					.quantity(quantity)
 					.product(product)
@@ -95,7 +95,7 @@ public class CartServiceImpl implements CartService {
 	}
 
 	@Override
-	public void removeFromCart(Long cartItemId) {
+	public void removeFromCart(long cartItemId) {
 		CartItem item = this.itemRepo.findById(cartItemId)
 				.orElseThrow(() -> new ResourceNotFoundException("Item Not EXist in Cart"));
 		this.itemRepo.delete(item);
@@ -105,7 +105,7 @@ public class CartServiceImpl implements CartService {
 	public void clearCart(String userId) {
 		User user = this.userRepo.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User Not Exist With ID: " + userId));
-		Cart cart = this.cartRepo.findByUser(user).get();
+		Cart cart = this.cartRepo.findByUser(user).orElseThrow(() -> new ResourceNotFoundException("User Not Exist"));
 		cart.getCartItems().clear();
 		cartRepo.save(cart);
 	}
@@ -114,7 +114,7 @@ public class CartServiceImpl implements CartService {
 	public CartDTO getCartByUser(String userId) {
 		User user = this.userRepo.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User Not Exist With ID: " + userId));
-		Cart cart = this.cartRepo.findByUser(user).get();
+		Cart cart = this.cartRepo.findByUser(user).orElseThrow(() -> new ResourceNotFoundException("User Not Exist"));
 		return this.modelMapper.map(cart, CartDTO.class);
 	}
 

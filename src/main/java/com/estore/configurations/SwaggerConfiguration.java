@@ -49,7 +49,7 @@ public class SwaggerConfiguration {
 				.description("Api Documentation of project \'Electronic Store\'")
 				.version("v0.0.1")
 				.contact(new Contact()
-						.name("Amit Thatera")
+						.name("Amit Thathera")
 						.email("amitthathera985@gmail.com"))
 				.license(new License()
 						.name("Apache 2.0")

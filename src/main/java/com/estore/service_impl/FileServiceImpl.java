@@ -7,12 +7,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import com.estore.custom_exception.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,8 +26,11 @@ import com.estore.custom_exception.ResourceNotFoundException;
 @Service
 public class FileServiceImpl implements FileServices {
 
-	@Autowired 
-	private ImageRepository imageRepo;
+	private final ImageRepository imageRepo;
+
+	public FileServiceImpl(ImageRepository imageRepo){
+		this.imageRepo = imageRepo;
+	}
 	
 	Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 	
@@ -35,23 +39,25 @@ public class FileServiceImpl implements FileServices {
 		String fileName = file.getOriginalFilename();
 		String randomId = UUID.randomUUID().toString();
 		
-		String newFileName = randomId.concat(fileName.substring(fileName.lastIndexOf(".")));
+		String newFileName = randomId.concat(Objects.requireNonNull(fileName).substring(fileName.lastIndexOf(".")));
 		
 		String filePath = path + File.separator + newFileName;
 		
 		File f = new File(path);
 		if(!f.exists()) {
-			f.mkdirs();
+			if (!f.mkdirs()) {
+				throw new ApiException("Failed to create directories at " + path);
+			}
 		}
 		
-		if (!file.getContentType().equals("image/jpeg") && !file.getContentType().equals("image/png")
+		if (!Objects.requireNonNull(file.getContentType()).equals("image/jpeg") && !file.getContentType().equals("image/png")
 				&& !file.getContentType().equals("image/webp")) {
 			throw new FileNotSupportedException("Image Not Supported !! Only JPEG/PNG/WEBP Files Allowed !! ");
 		}
 		
 		try {
 			file.transferTo(Paths.get(filePath));
-			logger.info("File Transfered");
+			logger.info("File Transferred");
 		}catch (IllegalStateException | IOException e) {
 			logger.error("Error: {} ",e.getMessage());
 		}
@@ -66,7 +72,7 @@ public class FileServiceImpl implements FileServices {
 			String fileName = file.getOriginalFilename();
 			String randomId = UUID.randomUUID().toString();
 			
-			String newFileName = randomId.concat(fileName.substring(fileName.lastIndexOf(".")));
+			String newFileName = randomId.concat(Objects.requireNonNull(fileName).substring(fileName.lastIndexOf(".")));
 			
 			Images image = new Images();
 			image.setImageName(newFileName);
@@ -78,10 +84,12 @@ public class FileServiceImpl implements FileServices {
 			
 			File f = new File(path);
 			if(!f.exists()) {
-				f.mkdirs();
+				if (!f.mkdirs()) {
+					throw new ApiException("Failed to create directories at " + path);
+				}
 			}
 			
-			if (!file.getContentType().equals("image/jpeg") && !file.getContentType().equals("image/png")
+			if (!Objects.requireNonNull(file.getContentType()).equals("image/jpeg") && !file.getContentType().equals("image/png")
 					&& !file.getContentType().equals("image/webp")) {
 				throw new FileNotSupportedException("Image Not Supported !! Only JPEG/PNG/WEBP Files Allowed !! ");
 			}
@@ -89,7 +97,7 @@ public class FileServiceImpl implements FileServices {
 			try {
 				file.transferTo(Paths.get(filePath));
 			}catch(IllegalStateException | IOException e) {
-				logger.error("Error: {}", e.getMessage());
+				logger.error("Upload File Error: {}", e.getMessage());
 			}
 		}
 		this.imageRepo.saveAll(images);

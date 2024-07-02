@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mapping.PropertyReferenceException;
@@ -38,31 +38,31 @@ public class GlobalExceptionsHandler {
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<ApiResponses> handleResourceNotFoundException(ResourceNotFoundException exception){
 		String message = exception.getMessage();
-		return new ResponseEntity<ApiResponses>(new ApiResponses(message, HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(new ApiResponses(message, HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
 	}
 	
 	@ExceptionHandler(ApiException.class)
 	public ResponseEntity<ApiResponses> handleApiException(ApiException exception){
 		String message = exception.getMessage();
-		return new ResponseEntity<ApiResponses>(new ApiResponses(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(new ApiResponses(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(FileNotSupportedException.class)
 	public ResponseEntity<ApiResponses> handleFileNotSupportedException(FileNotSupportedException exception){
 		String message = exception.getMessage();
-		return new ResponseEntity<ApiResponses>(new ApiResponses(message, HttpStatus.NOT_ACCEPTABLE), HttpStatus.NOT_ACCEPTABLE);
+		return new ResponseEntity<>(new ApiResponses(message, HttpStatus.NOT_ACCEPTABLE), HttpStatus.NOT_ACCEPTABLE);
 	}
 	
 	@ExceptionHandler(IllegalStateException.class)
 	public ResponseEntity<ApiResponses> handleIllegalStateException(IllegalStateException exception){
 		String message = exception.getMessage();
-		return new ResponseEntity<ApiResponses>(new ApiResponses(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);	
+		return new ResponseEntity<>(new ApiResponses(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(DataIntegrityViolationException.class)
 	public ResponseEntity<ApiResponses> handleDataIntegrityViolationException(DataIntegrityViolationException exception){
 		String message = exception.getMessage();
-		return new ResponseEntity<ApiResponses>(new ApiResponses("Data Integrity Violation "+message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(new ApiResponses("Data Integrity Violation " + message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
 	}
 	
 	
@@ -70,12 +70,12 @@ public class GlobalExceptionsHandler {
 	public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception){
 		List<ObjectError> errors = exception.getBindingResult().getAllErrors();
 		Map<String, Object> response = new HashMap<>();
-		errors.stream().forEach(object -> {
+		errors.forEach(object -> {
 			String message = object.getDefaultMessage();
 			String field = ((FieldError)object).getField();
 			response.put(field, message);
 		});
-		return new ResponseEntity<Map<String,Object>>(response, HttpStatus.NOT_ACCEPTABLE);
+		return new ResponseEntity<>(response, HttpStatus.NOT_ACCEPTABLE);
 	}
 	
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -86,18 +86,18 @@ public class GlobalExceptionsHandler {
 	}
 	
 	@ExceptionHandler(PropertyReferenceException.class)
-	public ResponseEntity<ApiResponses> handlePropertyRefrenceException(PropertyReferenceException exception) {
+	public ResponseEntity<ApiResponses> handlePropertyReferenceException(PropertyReferenceException exception) {
 		String message = exception.getMessage();
 		exception.printStackTrace();
-		return new ResponseEntity<ApiResponses>(new ApiResponses(message, HttpStatus.BAD_REQUEST),
-				HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(new ApiResponses(message, HttpStatus.BAD_REQUEST),
+                HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(ConstraintViolationException.class)
 	public ResponseEntity<ApiResponses> handleConstraintViolationException(ConstraintViolationException exception) {
 		String message = exception.getLocalizedMessage();
-		return new ResponseEntity<ApiResponses>(new ApiResponses(message, HttpStatus.BAD_REQUEST),
-				HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(new ApiResponses(message, HttpStatus.BAD_REQUEST),
+                HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -123,16 +123,16 @@ public class GlobalExceptionsHandler {
 	
 	@ExceptionHandler(StringIndexOutOfBoundsException.class)
 	public ResponseEntity<ApiResponses> handleStringIndexOutOfBoundsException(StringIndexOutOfBoundsException exception){
-		String message = "File Can Not Be Empty !!";
+		String message = exception.getMessage();
 		ApiResponses response = new ApiResponses(message, HttpStatus.BAD_REQUEST);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 	}
 	
 	@ExceptionHandler(NoSuchElementException.class)
 	public ResponseEntity<ApiResponses> handleNoSuchElementException(NoSuchElementException exception){
-		String message = "Empty Cart";
+		String message = exception.getMessage();
 		ApiResponses response = new ApiResponses(message, HttpStatus.BAD_GATEWAY);
-		return new ResponseEntity<ApiResponses>(response, HttpStatus.BAD_GATEWAY);
+		return new ResponseEntity<>(response, HttpStatus.BAD_GATEWAY);
 	}
 	
 	@ExceptionHandler(UsernameNotFoundException.class)

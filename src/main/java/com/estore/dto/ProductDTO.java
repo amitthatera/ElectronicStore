@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import com.estore.entities.Images;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -28,9 +28,9 @@ public class ProductDTO {
 	@NotBlank(message = "Name can not be blank !!")
 	private String productName;
 	
-	private Double actualPrice;
+	private double actualPrice;
 	
-	private Double discountedPrice;
+	private double discountedPrice;
 	
 	private String discountPercentage;
 	
@@ -49,7 +49,7 @@ public class ProductDTO {
 	@Builder.Default
 	private Boolean isActive = true;
 	
-	private Integer productStock;
+	private int productStock;
 	
 	private SubCategoryDTO subCategory;
 	

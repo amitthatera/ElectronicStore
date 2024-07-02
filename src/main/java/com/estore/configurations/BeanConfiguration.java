@@ -1,7 +1,6 @@
 package com.estore.configurations;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,10 +17,13 @@ import com.estore.repository.UserRepositiry;
 @Configuration
 public class BeanConfiguration {
 
-	@Autowired
-	private UserRepositiry userRepo;
+	private final UserRepositiry userRepo;
 
-	@Bean
+    public BeanConfiguration(UserRepositiry userRepo) {
+        this.userRepo = userRepo;
+    }
+
+    @Bean
 	ModelMapper getModelMapper() {
 		return new ModelMapper();
 	}

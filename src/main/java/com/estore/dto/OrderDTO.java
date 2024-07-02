@@ -30,7 +30,7 @@ public class OrderDTO {
 	@Builder.Default
 	private Enum<PaymentStatus> paymentStatus = PaymentStatus.NOT_PAID;
 	
-	private Double orderAmount;
+	private double orderAmount;
 	private String billingName;
 	private String billingContact;
 

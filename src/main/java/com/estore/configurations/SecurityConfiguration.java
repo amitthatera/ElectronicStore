@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -26,18 +27,26 @@ import com.estore.jwt_utils.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 @EnableWebMvc
 public class SecurityConfiguration {
 
 	@Autowired
-	private JwtAuthenticationEntryPoint authenticationEntryPoint;
+	private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
 	@Autowired
-	private JwtAuthenticationFilter authenticationFilter;
+	private final JwtAuthenticationFilter authenticationFilter;
 
 	@Autowired
-	private AuthenticationProvider authenticationProvider;
+	private final AuthenticationProvider authenticationProvider;
+
+	public SecurityConfiguration(AuthenticationProvider authenticationProvider,
+						  JwtAuthenticationFilter authenticationFilter,
+						  JwtAuthenticationEntryPoint authenticationEntryPoint) {
+		this.authenticationProvider = authenticationProvider;
+		this.authenticationFilter = authenticationFilter;
+		this.authenticationEntryPoint = authenticationEntryPoint;
+	}
 
 	public static final String[] PUBLIC_URL = { 
 			"/api/auth-user/**", 
@@ -48,24 +57,21 @@ public class SecurityConfiguration {
 
 	@Bean
 	SecurityFilterChain getHttpSecurity(HttpSecurity http) throws Exception {
-		http
-		.csrf()
-		.disable()
-		.authorizeHttpRequests()
-		.antMatchers(PUBLIC_URL)
-		.permitAll()
-		.antMatchers(HttpMethod.GET)
-	    .permitAll()
-	    .anyRequest()
-	    .authenticated()
-	    .and()
-	    .exceptionHandling()
-				.authenticationEntryPoint(this.authenticationEntryPoint).and().sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-				.authenticationProvider(this.authenticationProvider)
-				.addFilterBefore(this.authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+			http
+					.csrf(AbstractHttpConfigurer::disable)
+					.authorizeHttpRequests(authorize -> authorize
+							.requestMatchers(PUBLIC_URL).permitAll()
+							.requestMatchers(HttpMethod.GET).permitAll()
+							.anyRequest().authenticated()
+					)
+					.exceptionHandling(exceptionHandling ->
+							exceptionHandling.authenticationEntryPoint(authenticationEntryPoint))
+					.sessionManagement(sessionManagement ->
+							sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+					.authenticationProvider(authenticationProvider)
+					.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-		return http.build();
+			return http.build();
 	}
 
 	@Bean
@@ -75,7 +81,7 @@ public class SecurityConfiguration {
 		
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowCredentials(true);
-		configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+		configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:3000"));
 		configuration.addAllowedHeader("Authorization");
 		configuration.addAllowedHeader("Content-Type");
 		configuration.addAllowedHeader("Accept");

@@ -13,11 +13,11 @@ import lombok.Setter;
 @Builder
 public class CartItemDTO {
 
-	private Long cartItemId;
+	private long cartItemId;
 	
-	private Integer quantity;
+	private int quantity;
 	
-	private Double totalPrice;
+	private double totalPrice;
 
 	private ProductDTO product;
 	

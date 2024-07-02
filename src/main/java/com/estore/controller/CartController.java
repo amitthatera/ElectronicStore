@@ -1,6 +1,5 @@
 package com.estore.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,9 +28,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "CART_CONTROLLER", description = "API's use to perform cart related activities.")
 public class CartController {
 
-	@Autowired
-	private CartServiceImpl cartService;
-	
+	private final CartServiceImpl cartService;
+
+	public CartController(CartServiceImpl cartService) {
+		this.cartService = cartService;
+	}
+
 	@PreAuthorize("#userId == authentication.principal.userId")
 	@Operation(
 			security = @SecurityRequirement(name = "token"),
@@ -39,13 +41,13 @@ public class CartController {
 			responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "201", description = "Item Added Succesfully!", 
+			@ApiResponse(responseCode = "201", description = "Item Added Successfully!",
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 201, \"Status\" : \"Created!\", \"Message\" :\"Item Added!\"}") })) })
 	@PostMapping("/{userId}")
 	public ResponseEntity<CartDTO> addToCart(@PathVariable String userId, @RequestBody AddToCartRequest request){
 		CartDTO cart = this.cartService.addToCart(userId, request);
-		return new ResponseEntity<CartDTO>(cart, HttpStatus.CREATED);
+		return new ResponseEntity<>(cart, HttpStatus.CREATED);
 	}
 	
 	@PreAuthorize("hasRole('NORMAL') or hasRole('ADMIN')")
@@ -55,13 +57,13 @@ public class CartController {
 			responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "200", description = "Item Removed Succesfully!", 
+			@ApiResponse(responseCode = "200", description = "Item Removed Successfully!",
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"Item Removed!\"}") })) })
 	@DeleteMapping("/cart_item/{itemId}")
-	public ResponseEntity<ApiResponses> removeFromCart(@PathVariable Long itemId){
+	public ResponseEntity<ApiResponses> removeFromCart(@PathVariable long itemId){
 		this.cartService.removeFromCart(itemId);
-		return new ResponseEntity<ApiResponses>(new ApiResponses("Item Removed From Cart !!", HttpStatus.OK), HttpStatus.OK);
+		return new ResponseEntity<>(new ApiResponses("Item Removed From Cart !!", HttpStatus.OK), HttpStatus.OK);
 	}
 	
 	@PreAuthorize("authentication.principal.userId == #userId")
@@ -77,7 +79,7 @@ public class CartController {
 	@DeleteMapping("/{userId}")
 	public ResponseEntity<ApiResponses> clearCart(@PathVariable String userId){
 		this.cartService.clearCart(userId);
-		return new ResponseEntity<ApiResponses>(new ApiResponses("Cart Cleared !!", HttpStatus.OK), HttpStatus.OK);
+		return new ResponseEntity<>(new ApiResponses("Cart Cleared !!", HttpStatus.OK), HttpStatus.OK);
 	}
 	
 	@PreAuthorize("#userId == authentication.principal.userId")
@@ -93,6 +95,6 @@ public class CartController {
 	@GetMapping("/{userId}")
 	public ResponseEntity<CartDTO> getCart(@PathVariable String userId){
 		CartDTO cart = this.cartService.getCartByUser(userId);
-		return new ResponseEntity<CartDTO>(cart, HttpStatus.OK);
+		return new ResponseEntity<>(cart, HttpStatus.OK);
 	}
 }

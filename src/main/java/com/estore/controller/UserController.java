@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,14 +46,18 @@ import com.estore.custom_exception.ResourceNotFoundException;
 @Tag(name = "USER_CONTROLLER", description = "API's related to perform user operation.")
 public class UserController {
 
-	@Autowired
-	private UserServiceImpl userService;
+	private final UserServiceImpl userService;
 
-	@Autowired
-	private FileServiceImpl fileService;
+	private final FileServiceImpl fileService;
 
-	@Value("${user.profile.image.path}")
-	private String path;
+	private final String path;
+
+	public UserController(UserServiceImpl userService, FileServiceImpl fileService,
+						  @Value("${user.profile.image.path}")String path) {
+		this.userService = userService;
+		this.fileService = fileService;
+		this.path = path;
+	}
 
 	@PostMapping("/")
 	@Operation(
@@ -63,12 +66,12 @@ public class UserController {
 			responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "201", description = "User Created Succesfully!", 
+			@ApiResponse(responseCode = "201", description = "User Created Successfully!",
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 201, \"Status\" : \"Created!\", \"Message\" :\"User Created!\"}") })) })
 	public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDto) {
 		UserDTO user = this.userService.createUser(userDto);
-		return new ResponseEntity<UserDTO>(user, HttpStatus.CREATED);
+		return new ResponseEntity<>(user, HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("#userId == authentication.principal.userId")
@@ -78,13 +81,13 @@ public class UserController {
 			responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "201", description = "User Updated Succesfully!", 
+			@ApiResponse(responseCode = "201", description = "User Updated Successfully!",
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 201, \"Status\" : \"Created!\", \"Message\" :\"User Updated!\"}") })) })
 	@PutMapping("/{userId}")
 	public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDto, @PathVariable String userId) {
 		UserDTO user = this.userService.updateUser(userDto, userId);
-		return new ResponseEntity<UserDTO>(user, HttpStatus.CREATED);
+		return new ResponseEntity<>(user, HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.userId")
@@ -94,14 +97,14 @@ public class UserController {
 			responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "200", description = "User Deleted Succesfully!", 
+			@ApiResponse(responseCode = "200", description = "User Deleted Successfully!",
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"User Deleted!\"}") })) })
 	@DeleteMapping("/{userId}")
 	public ResponseEntity<ApiResponses> deleteUser(@PathVariable String userId) {
 		this.userService.deleteUser(userId);
-		return new ResponseEntity<ApiResponses>(new ApiResponses("User Deleted Successfully. ", HttpStatus.OK),
-				HttpStatus.OK);
+		return new ResponseEntity<>(new ApiResponses("User Deleted Successfully. ", HttpStatus.OK),
+                HttpStatus.OK);
 	}
 
 	@GetMapping("/{userId}")
@@ -115,7 +118,7 @@ public class UserController {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"OK!\"}") })) })
 	public ResponseEntity<UserDTO> getUserById(@PathVariable String userId) {
 		UserDTO user = this.userService.getUserById(userId);
-		return new ResponseEntity<UserDTO>(user, HttpStatus.OK);
+		return new ResponseEntity<>(user, HttpStatus.OK);
 	}
 
 	@GetMapping("/email/{email}")
@@ -129,7 +132,7 @@ public class UserController {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"OK!\"}") })) })
 	public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
 		UserDTO user = this.userService.getUserByEmail(email);
-		return new ResponseEntity<UserDTO>(user, HttpStatus.OK);
+		return new ResponseEntity<>(user, HttpStatus.OK);
 	}
 
 	@GetMapping("/search/{keyword}")
@@ -143,7 +146,7 @@ public class UserController {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"OK!\"}") })) })
 	public ResponseEntity<List<UserDTO>> searchUser(@PathVariable String keyword) {
 		List<UserDTO> users = this.userService.getUserByKeyword(keyword);
-		return new ResponseEntity<List<UserDTO>>(users, HttpStatus.OK);
+		return new ResponseEntity<>(users, HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
@@ -153,17 +156,17 @@ public class UserController {
 			responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "200", description = "Users Fetched Succesfully!", 
+			@ApiResponse(responseCode = "200", description = "Users Fetched Successfully!",
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"User Fetched!\"}") })) })
 	@GetMapping()
 	public ResponseEntity<PageableResponse<UserDTO>> getAllUser(
-			@RequestParam(value = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
-			@RequestParam(value = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
+			@RequestParam(value = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) int pageNumber,
+			@RequestParam(value = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) int pageSize,
 			@RequestParam(value = "sortBy", defaultValue = AppConstant.USER_SORT_BY, required = false) String sortBy,
 			@RequestParam(value = "sortDir", defaultValue = AppConstant.SORT_DIR, required = false) String sortDir) {
 		PageableResponse<UserDTO> users = this.userService.getAllUsers(pageNumber, pageSize, sortBy, sortDir);
-		return new ResponseEntity<PageableResponse<UserDTO>>(users, HttpStatus.OK);
+		return new ResponseEntity<>(users, HttpStatus.OK);
 	}
 
 	@PreAuthorize("#userId == authentication.principal.userId")
@@ -184,8 +187,8 @@ public class UserController {
 		UserDTO user = this.userService.getUserById(userId);
 		user.setImageName(image);
 		this.userService.updateUser(user, userId);
-		return new ResponseEntity<FileResponse>(new FileResponse(image, "Image Uploaded Successfully", HttpStatus.OK),
-				HttpStatus.OK);
+		return new ResponseEntity<>(new FileResponse(image, "Image Uploaded Successfully", HttpStatus.OK),
+                HttpStatus.OK);
 
 	}
 

@@ -7,7 +7,7 @@ public interface CartService {
 
 	CartDTO addToCart(String userId, AddToCartRequest request);
 
-	void removeFromCart(Long cartItemId);
+	void removeFromCart(long cartItemId);
 	
 	void clearCart(String userId);
 	

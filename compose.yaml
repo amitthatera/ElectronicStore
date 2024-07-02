@@ -1,0 +1,29 @@
+services:
+  postgres:
+    container_name: electro-postgres
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gstore}
+      POSTGRES_USER: ${POSTGRES_USER:-amit}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5441}:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - electronics-store
+    restart: unless-stopped
+    healthcheck:
+      test: pg_isready -U amit -d gstore
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+networks:
+  electronics-store:
+    driver: bridge
+
+volumes:
+  postgres:
+

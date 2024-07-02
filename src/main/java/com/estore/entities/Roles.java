@@ -3,9 +3,9 @@ package com.estore.entities;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +22,7 @@ import lombok.Setter;
 public class Roles {
 
 	@Id
-	private Long roleId;
+	private long roleId;
 	private String roleName;
 	
 	@Builder.Default

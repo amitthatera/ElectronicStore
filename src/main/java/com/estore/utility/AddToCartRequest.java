@@ -14,5 +14,5 @@ import lombok.Setter;
 public class AddToCartRequest {
 
 	private String productId;
-	private Integer quantity;
+	private int quantity;
 }

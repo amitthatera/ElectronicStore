@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
-import javax.validation.Valid;
 
+import com.estore.custom_exception.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,43 +49,46 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/api/auth-user")
 @Tag(name = "AUTHENTICATION_CONTROLLER", description = "API's related to authenticate user.")
 public class AuthenticationController {
-	
-	@Autowired
-	private UserServiceImpl userService;
-	
-	@Autowired
-	private UserDetailsService userDetailsService;
-	
-	@Autowired
-	private JwtUtils jwtUtils;
 
-	@Autowired
-	private ModelMapper modelMapper;
+	private final UserServiceImpl userService;
+
+	private final UserDetailsService userDetailsService;
+
+	private final JwtUtils jwtUtils;
+
+	private final ModelMapper modelMapper;
+
+	private final AuthenticationManager authManager;
+
+	private final String googleClientId;
+
+	private final String newPassword;
 	
-	@Autowired
-	private AuthenticationManager authManager;
-	
-	@Value("${googleClientId}")
-	private String googleClientId;
-	
-	@Value("${newPassword}")
-	private String newPassword;
-	
-	Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
-	
-	
+	private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
+
+	public AuthenticationController(UserServiceImpl userService, UserDetailsService userDetailsService,
+									JwtUtils jwtUtils, ModelMapper modelMapper, AuthenticationManager authManager, @Value("${googleClientId}")String googleClientId, @Value("${newPassword}")String newPassword) {
+		this.userService = userService;
+		this.userDetailsService = userDetailsService;
+		this.jwtUtils = jwtUtils;
+		this.modelMapper = modelMapper;
+		this.authManager = authManager;
+		this.googleClientId = googleClientId;
+		this.newPassword = newPassword;
+	}
+
 	@PostMapping("/register")
 	@Operation(
 			description = "Register User API", 
 			responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "201", description = "Registration Succesfully!", 
+			@ApiResponse(responseCode = "201", description = "Registration Successfully!",
 			content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 201, \"Status\" : \"Created!\", \"Message\" :\"User Registered!\"}") })) })
 	public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody UserDTO userDto){
 		UserDTO user = this.userService.createUser(userDto);
-		return new ResponseEntity<UserDTO>(user, HttpStatus.CREATED);
+		return new ResponseEntity<>(user, HttpStatus.CREATED);
 	}
 	
 	@PostMapping("/login")
@@ -109,7 +112,7 @@ public class AuthenticationController {
 	            .token(token)
 	            .user(user)
 	            .build();
-		return new ResponseEntity<JwtAuthResponse>(response, HttpStatus.OK);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	@PostMapping("/google")
@@ -127,7 +130,7 @@ public class AuthenticationController {
 		
 		String email = payload.getEmail();
 		
-		User user = userService.findUserByEmail(email).get();
+		User user = userService.findUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User Not Exist With Email: "+email));
 		
 		ResponseEntity<JwtAuthResponse> response = null;
 		if(user != null) {

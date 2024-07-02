@@ -2,7 +2,6 @@ package com.estore;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,16 +12,19 @@ import com.estore.utility.AppConstant;
 
 @SpringBootApplication
 public class ElectronicsStoreApplication implements CommandLineRunner {
-	
-	@Autowired
-	private RolesRepository roleRepo;
+
+	private final RolesRepository roleRepo;
+
+	public ElectronicsStoreApplication(RolesRepository roleRepo) {
+		this.roleRepo = roleRepo;
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(ElectronicsStoreApplication.class, args);
 	}
 
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(String... args) {
 		
 		Roles role1 = Roles.builder()
 				.roleId(AppConstant.ADMIN)

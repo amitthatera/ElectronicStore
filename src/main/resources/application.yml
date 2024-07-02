@@ -1,0 +1,13 @@
+server:
+  port: 8282
+
+# Multipart Configuration
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
+      file-size-threshold: 200KB
+
+
+

@@ -1,6 +1,6 @@
 package com.estore.dto;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import lombok.Setter;
 @Builder
 public class AddressDTO {
 
-	private Long addressId;
+	private long addressId;
 	
 	@NotBlank(message = "Please Enter Details !!")
 	private String houseNumber;
@@ -33,6 +33,6 @@ public class AddressDTO {
 	private String state;
 	
 	@NotBlank(message = "Please Enter Postal Code !!")
-	private Integer postalCode;
+	private int postalCode;
 	
 }

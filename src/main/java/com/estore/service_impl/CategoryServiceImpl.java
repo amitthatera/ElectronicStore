@@ -5,7 +5,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,11 +22,14 @@ import com.estore.utility.Helper;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-	@Autowired
-	private CategoryRepository categoryRepo;
+	private final CategoryRepository categoryRepo;
 
-	@Autowired
-	private ModelMapper modelMapper;
+	private final ModelMapper modelMapper;
+
+	public CategoryServiceImpl(CategoryRepository categoryRepo, ModelMapper modelMapper) {
+		this.categoryRepo = categoryRepo;
+		this.modelMapper = modelMapper;
+	}
 
 	@Override
 	public CategoryDTO createCategory(CategoryDTO categoryDto) {
@@ -64,19 +66,17 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public List<CategoryDTO> searchCategory(String keyword) {
 		List<Category> category = this.categoryRepo.findByCategoryNameContainingIgnoreCase(keyword);
-		List<CategoryDTO> categories = category.stream()
+        return category.stream()
 				.map(cat -> this.modelMapper.map(cat, CategoryDTO.class)).collect(Collectors.toList());
-		return categories;
 	}
 
 	@Override
-	public PageableResponse<CategoryDTO> getAllCategory(Integer pageNumber, Integer pageSize, String sortBy,
+	public PageableResponse<CategoryDTO> getAllCategory(int pageNumber, int pageSize, String sortBy,
 			String sortDir) {
 		Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 		Page<Category> category = this.categoryRepo.findAll(pageable);
-		PageableResponse<CategoryDTO> response = Helper.getPageableResponse(category, CategoryDTO.class);
-		return response;
+        return Helper.getPageableResponse(category, CategoryDTO.class);
 	}
 
 	public String generateRandomId() {

@@ -21,12 +21,12 @@ public interface ProductServices {
 
 	List<ProductDTO> searchProduct(String keyword);
 
-	PageableResponse<ProductDTO> getBySubCategoryId(String subCategoryId, Integer pageNumber, Integer pageSize, String sortBy,
+	PageableResponse<ProductDTO> getBySubCategoryId(String subCategoryId, int pageNumber, int pageSize, String sortBy,
 			String sortDir);
 
-	PageableResponse<ProductDTO> getAllActiveProduct(Integer pageNumber, Integer pageSize, String sortBy,
+	PageableResponse<ProductDTO> getAllActiveProduct(int pageNumber, int pageSize, String sortBy,
 			String sortDir);
 
-	PageableResponse<ProductDTO> getAllProduct(Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
+	PageableResponse<ProductDTO> getAllProduct(int pageNumber, int pageSize, String sortBy, String sortDir);
 
 }

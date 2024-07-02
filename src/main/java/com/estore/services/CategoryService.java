@@ -17,6 +17,6 @@ public interface CategoryService {
 
 	List<CategoryDTO > searchCategory(String keyword);
 
-	PageableResponse<CategoryDTO> getAllCategory(Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
+	PageableResponse<CategoryDTO> getAllCategory(int pageNumber, int pageSize, String sortBy, String sortDir);
 
 }

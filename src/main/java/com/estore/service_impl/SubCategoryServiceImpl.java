@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,18 +29,22 @@ import com.estore.utility.Helper;
 
 @Service
 public class SubCategoryServiceImpl implements SubCategoryService {
-	
-	@Autowired
-	private SubCategoryRepository subCategoryRepo;
-	
-	@Autowired
-	private CategoryRepository categoryRepo;
-	
-	@Autowired
-	private ModelMapper modelMapper;
-	
-	@Value("${category.image.path}")
-	private String path;
+
+	private final SubCategoryRepository subCategoryRepo;
+
+	private final CategoryRepository categoryRepo;
+
+	private final ModelMapper modelMapper;
+
+	private final String path;
+
+	public SubCategoryServiceImpl(SubCategoryRepository subCategoryRepo, CategoryRepository categoryRepo,
+								  ModelMapper modelMapper, @Value("${category.image.path}")String path) {
+		this.subCategoryRepo = subCategoryRepo;
+		this.categoryRepo = categoryRepo;
+		this.modelMapper = modelMapper;
+		this.path = path;
+	}
 
 	@Override
 	public SubCategoryDTO createSubCategory(SubCategoryDTO subCategoryDTO) {
@@ -121,19 +124,17 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 	@Override
 	public List<SubCategoryDTO> searchSubCategory(String keyword) {
 		List<SubCategory> subCategories = this.subCategoryRepo.findBySubCategoryNameContainingIgnoreCase(keyword);
-		List<SubCategoryDTO> dto = subCategories.stream().map(cat -> this.modelMapper.map(cat, SubCategoryDTO.class))
+        return subCategories.stream().map(cat -> this.modelMapper.map(cat, SubCategoryDTO.class))
 				.collect(Collectors.toList());
-		return dto;
 	}
 
 	@Override
-	public PageableResponse<SubCategoryDTO> getAllSubCategory(Integer pageNumber, Integer pageSize, String sortBy,
+	public PageableResponse<SubCategoryDTO> getAllSubCategory(int pageNumber, int pageSize, String sortBy,
 			String sortDir) {
 		Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 		Page<SubCategory> pages = this.subCategoryRepo.findAll(pageable);
-		PageableResponse<SubCategoryDTO> response = Helper.getPageableResponse(pages, SubCategoryDTO.class);
-		return response;
+        return Helper.getPageableResponse(pages, SubCategoryDTO.class);
 	}
 	
 

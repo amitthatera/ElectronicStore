@@ -11,6 +11,6 @@ public class AppConstant {
     public static final String PRODUCT_SORT_BY = "productName";
     public static final String ORDER_SORT_BY = "orderedDate";
     public static final String ADDRESS_SORT_BY = "state";
-    public static final Long ADMIN = 101L;
-    public static final Long NORMAL = 103L;
+    public static final long ADMIN = 101L;
+    public static final long NORMAL = 103L;
 }

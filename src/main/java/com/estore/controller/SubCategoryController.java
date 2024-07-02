@@ -2,9 +2,8 @@ package com.estore.controller;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,23 +42,27 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "SUB_CATEGORY_CONTROLLER", description = "API's related to perform SubCategory crud operation.")
 public class SubCategoryController {
 
-	@Autowired
-	private SubCategoryServiceImpl subCategoryService;
+	private final SubCategoryServiceImpl subCategoryService;
 
-	@Autowired
-	private FileServiceImpl fileService;
+	private final FileServiceImpl fileService;
 
-	@Autowired
-	private ProductServiceImpl productService;
+	private final ProductServiceImpl productService;
 
-	@Value("${category.image.path}")
-	private String path;
+	private final String path;
+
+	public SubCategoryController(SubCategoryServiceImpl subCategoryService, FileServiceImpl fileService,
+								 ProductServiceImpl productService, @Value("${category.image.path}")String path) {
+		this.subCategoryService = subCategoryService;
+		this.fileService = fileService;
+		this.productService = productService;
+		this.path = path;
+	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(security = @SecurityRequirement(name = "token"), description = "Create SubCategory API", responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "201", description = "SubCategory Created Succesfully!", content = @Content(mediaType = "application/json", examples = {
+			@ApiResponse(responseCode = "201", description = "SubCategory Created Successfully!", content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 201, \"Status\" : \"Created!\", \"Message\" :\"SubCategory Created!\"}") })) })
 	@PostMapping(value = "/", consumes = "multipart/form-data")
 	public ResponseEntity<SubCategoryDTO> createSubCategory(@Valid 
@@ -68,7 +71,7 @@ public class SubCategoryController {
 		String imageName = this.fileService.uploadFile(file, path);
 		subCategory.setImageName(imageName);
 		SubCategoryDTO subCategoryDto = this.subCategoryService.createSubCategory(subCategory);
-		return new ResponseEntity<SubCategoryDTO>(subCategoryDto, HttpStatus.CREATED);
+		return new ResponseEntity<>(subCategoryDto, HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
@@ -76,7 +79,7 @@ public class SubCategoryController {
 	    description = "Create SubCategory By Category ID API", responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "201", description = "SubCategory Created Succesfully!", content = @Content(mediaType = "application/json", examples = {
+			@ApiResponse(responseCode = "201", description = "SubCategory Created Successfully!", content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 201, \"Status\" : \"Created!\", \"Message\" :\"SubCategory Created!\"}") })) })
 	@PostMapping(value = "/category/{categoryId}", consumes = "multipart/form-data")
 	public ResponseEntity<SubCategoryDTO> createSubCategory(@Valid 
@@ -85,7 +88,7 @@ public class SubCategoryController {
 		String imageName = this.fileService.uploadFile(file, path);
 		subCategory.setImageName(imageName);
 		SubCategoryDTO subCategoryDto = this.subCategoryService.createSubCategory(subCategory, categoryId);
-		return new ResponseEntity<SubCategoryDTO>(subCategoryDto, HttpStatus.CREATED);
+		return new ResponseEntity<>(subCategoryDto, HttpStatus.CREATED);
 	}
 
 	
@@ -93,7 +96,7 @@ public class SubCategoryController {
 	@Operation(security = @SecurityRequirement(name = "token"), description = "Update SubCategory API", responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "201", description = "SubCategory Updated Succesfully!", content = @Content(mediaType = "application/json", examples = {
+			@ApiResponse(responseCode = "201", description = "SubCategory Updated Successfully!", content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 201, \"Status\" : \"Created!\", \"Message\" :\"SubCategory Updated!\"}") })) })
 	@PutMapping(value = "/{subCategoryId}", consumes = "multipart/form-data")
 	public ResponseEntity<SubCategoryDTO> updateSubCategory(@Valid 
@@ -103,7 +106,7 @@ public class SubCategoryController {
 		String imageName = this.fileService.uploadFile(file, path);
 		subCategory.setImageName(imageName);
 		SubCategoryDTO SubCategoryDto = this.subCategoryService.updateSubCategory(subCategory, subCategoryId);
-		return new ResponseEntity<SubCategoryDTO>(SubCategoryDto, HttpStatus.CREATED);
+		return new ResponseEntity<>(SubCategoryDto, HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
@@ -111,25 +114,25 @@ public class SubCategoryController {
 	           description = "Update SubCategory Category API", responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "201", description = "SubCategory Updated Succesfully!", content = @Content(mediaType = "application/json", examples = {
+			@ApiResponse(responseCode = "201", description = "SubCategory Updated Successfully!", content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 201, \"Status\" : \"Created!\", \"Message\" :\"SubCategory Updated!\"}") })) })
 	@PutMapping(value = "/{subCategoryId}/category/{categoryId}")
 	public ResponseEntity<SubCategoryDTO> updateCategory(@Valid @PathVariable String subCategoryId, @PathVariable String categoryId) {
 		SubCategoryDTO SubCategoryDto = this.subCategoryService.updateCategory(subCategoryId, categoryId);
-		return new ResponseEntity<SubCategoryDTO>(SubCategoryDto, HttpStatus.CREATED);
+		return new ResponseEntity<>(SubCategoryDto, HttpStatus.CREATED);
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(security = @SecurityRequirement(name = "token"), description = "Delete SubCategory API", responses = {
 			@ApiResponse(responseCode = "400", ref = "badRequestApi"),
 			@ApiResponse(responseCode = "500", ref = "internalServerErrorApi"),
-			@ApiResponse(responseCode = "200", description = "SubCategory Deleted Succesfully!", content = @Content(mediaType = "application/json", examples = {
+			@ApiResponse(responseCode = "200", description = "SubCategory Deleted Successfully!", content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"SubCategory Deleted!\"}") })) })
 	@DeleteMapping("/{subCategoryId}")
 	public ResponseEntity<ApiResponses> deleteSubCategory(@PathVariable String subCategoryId) {
 		this.subCategoryService.deleteSubCategory(subCategoryId);
-		return new ResponseEntity<ApiResponses>(new ApiResponses("SubCategory Deleted Successfully !!", HttpStatus.OK),
-				HttpStatus.OK);
+		return new ResponseEntity<>(new ApiResponses("SubCategory Deleted Successfully !!", HttpStatus.OK),
+                HttpStatus.OK);
 	}
 
 	@GetMapping("/{subCategoryId}")
@@ -140,7 +143,7 @@ public class SubCategoryController {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"SubCategory Fetched!\"}") })) })
 	public ResponseEntity<SubCategoryDTO> getSubCategoryById(@PathVariable String subCategoryId) {
 		SubCategoryDTO SubCategory = this.subCategoryService.getSubCategoryById(subCategoryId);
-		return new ResponseEntity<SubCategoryDTO>(SubCategory, HttpStatus.OK);
+		return new ResponseEntity<>(SubCategory, HttpStatus.OK);
 	}
 
 	@GetMapping("/search/{keyword}")
@@ -151,7 +154,7 @@ public class SubCategoryController {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"OK!\"}") })) })
 	public ResponseEntity<List<SubCategoryDTO>> searchSubCategory(@PathVariable String keyword) {
 		List<SubCategoryDTO> SubCategory = this.subCategoryService.searchSubCategory(keyword);
-		return new ResponseEntity<List<SubCategoryDTO>>(SubCategory, HttpStatus.OK);
+		return new ResponseEntity<>(SubCategory, HttpStatus.OK);
 	}
 
 	@GetMapping()
@@ -161,13 +164,13 @@ public class SubCategoryController {
 			@ApiResponse(responseCode = "200", description = "OK!", content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"OK!\"}") })) })
 	public ResponseEntity<PageableResponse<SubCategoryDTO>> getAllSubCategory(
-			@RequestParam(value = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
-			@RequestParam(value = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
+			@RequestParam(value = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) int pageNumber,
+			@RequestParam(value = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) int pageSize,
 			@RequestParam(value = "sortBy", defaultValue = AppConstant.SUB_CATEGORY_SORT_BY, required = false) String sortBy,
 			@RequestParam(value = "sortDir", defaultValue = AppConstant.SORT_DIR, required = false) String sortDir) {
 		PageableResponse<SubCategoryDTO> response = this.subCategoryService.getAllSubCategory(pageNumber, pageSize,
 				sortBy, sortDir);
-		return new ResponseEntity<PageableResponse<SubCategoryDTO>>(response, HttpStatus.OK);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{subCategoryId}/products")
@@ -177,12 +180,12 @@ public class SubCategoryController {
 			@ApiResponse(responseCode = "200", description = "OK!", content = @Content(mediaType = "application/json", examples = {
 					@ExampleObject(value = "{\"code\" : 200, \"Status\" : \"OK!\", \"Message\" :\"OK!\"}") })) })
 	public ResponseEntity<PageableResponse<ProductDTO>> getAllProductBySubCategoryId(@PathVariable String subCategoryId,
-			@RequestParam(value = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
-			@RequestParam(value = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
+			@RequestParam(value = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) int pageNumber,
+			@RequestParam(value = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) int pageSize,
 			@RequestParam(value = "sortBy", defaultValue = AppConstant.PRODUCT_SORT_BY, required = false) String sortBy,
 			@RequestParam(value = "sortDir", defaultValue = AppConstant.SORT_DIR, required = false) String sortDir) {
 		PageableResponse<ProductDTO> response = this.productService.getBySubCategoryId(subCategoryId,pageNumber, pageSize,
 				sortBy, sortDir);
-		return new ResponseEntity<PageableResponse<ProductDTO>>(response, HttpStatus.OK);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

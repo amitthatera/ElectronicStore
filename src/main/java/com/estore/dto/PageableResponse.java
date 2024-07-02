@@ -16,9 +16,9 @@ import lombok.Setter;
 public class PageableResponse<T> {
 
 	private List<T> content;
-	private Integer pageNumber;
-	private Integer pageSize;
-	private Long totalElements;
-	private Integer totalPages;
+	private int pageNumber;
+	private int pageSize;
+	private long totalElements;
+	private int totalPages;
 	private Boolean isLastPage;
 }

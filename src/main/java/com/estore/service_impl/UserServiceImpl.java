@@ -10,7 +10,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,20 +32,24 @@ import com.estore.utility.Helper;
 @Service
 public class UserServiceImpl implements UserServices {
 
-	@Autowired
-	private UserRepositiry userRepo;
+	private final UserRepositiry userRepo;
 
-	@Autowired
-	private ModelMapper modelMapper;
-	
-	@Autowired
-	private BCryptPasswordEncoder passwordEncoder;
-	
-	@Autowired
-	private RolesRepository roleRepo;
-	
-	@Value("${user.profile.image.path}")
-	private String path;
+	private final ModelMapper modelMapper;
+
+	private final BCryptPasswordEncoder passwordEncoder;
+
+	private final RolesRepository roleRepo;
+
+	private final String path;
+
+	public UserServiceImpl(UserRepositiry userRepo, ModelMapper modelMapper,
+						   BCryptPasswordEncoder passwordEncoder, RolesRepository roleRepo, @Value("${user.profile.image.path}")String path) {
+		this.userRepo = userRepo;
+		this.modelMapper = modelMapper;
+		this.passwordEncoder = passwordEncoder;
+		this.roleRepo = roleRepo;
+		this.path = path;
+	}
 
 	@Override
 	public UserDTO createUser(UserDTO userDto) {
@@ -58,7 +61,7 @@ public class UserServiceImpl implements UserServices {
 		user.setUserId(generateRandomId());
 		user.setUserPassword(this.passwordEncoder.encode(userDto.getPassword()));
 		
-		Roles role = this.roleRepo.findById(AppConstant.NORMAL).get();
+		Roles role = this.roleRepo.findById(AppConstant.NORMAL).orElseThrow(() -> new ResourceNotFoundException("Role Not Exist!!"));
 		user.getRoles().add(role);
 		
 		User newUser = this.userRepo.save(user);
@@ -103,12 +106,11 @@ public class UserServiceImpl implements UserServices {
 	}
 
 	@Override
-	public PageableResponse<UserDTO> getAllUsers(Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+	public PageableResponse<UserDTO> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDir) {
 		Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 		Page<User> page = this.userRepo.findAll(pageable);
-		PageableResponse<UserDTO> response = Helper.getPageableResponse(page, UserDTO.class);
-		return response;
+        return Helper.getPageableResponse(page, UserDTO.class);
 	}
 
 	@Override
@@ -121,9 +123,8 @@ public class UserServiceImpl implements UserServices {
 	@Override
 	public List<UserDTO> getUserByKeyword(String keyword) {
 		List<User> users = this.userRepo.findByFirstNameContainingIgnoreCase(keyword);
-		List<UserDTO> user = users.stream().map(u -> this.modelMapper.map(u, UserDTO.class))
+        return users.stream().map(u -> this.modelMapper.map(u, UserDTO.class))
 				.collect(Collectors.toList());
-		return user;
 	}
 	
 	@Override

@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,18 +31,21 @@ import com.estore.utility.Helper;
 @Service
 public class ProductServiceImpl implements ProductServices {
 
+	private final ProductRepository productRepo;
 
-	@Autowired
-	private ProductRepository productRepo;
+	private final SubCategoryRepository subCategoryRepo;
 
-	@Autowired
-	private SubCategoryRepository subCategoryRepo;
+	private final ModelMapper modelMapper;
 
-	@Autowired
-	private ModelMapper modelMapper;
+	private final String path;
 
-	@Value("${product.image.path}")
-	private String path;
+	public ProductServiceImpl(ProductRepository productRepo, SubCategoryRepository subCategoryRepo,
+							  ModelMapper modelMapper, @Value("${product.image.path}") String path) {
+		this.productRepo = productRepo;
+		this.subCategoryRepo = subCategoryRepo;
+		this.modelMapper = modelMapper;
+		this.path = path;
+	}
 
 	@Override
 	public ProductDTO createProduct(ProductDTO productDto) {
@@ -142,47 +144,43 @@ public class ProductServiceImpl implements ProductServices {
 	@Override
 	public List<ProductDTO> searchProduct(String keyword) {
 		List<Product> products = this.productRepo.findByProductNameContainingIgnoreCase(keyword);
-		List<ProductDTO> productsDto = products.stream()
+        return products.stream()
 				.map(product -> this.modelMapper.map(product, ProductDTO.class)).collect(Collectors.toList());
-		return productsDto;
 	}
 
 	@Override
-	public PageableResponse<ProductDTO> getBySubCategoryId(String subCategoryId, Integer pageNumber, Integer pageSize,
+	public PageableResponse<ProductDTO> getBySubCategoryId(String subCategoryId, int pageNumber, int pageSize,
 			String sortBy, String sortDir) {
 		SubCategory category = this.subCategoryRepo.findById(subCategoryId)
 				.orElseThrow(() -> new ResourceNotFoundException("Category Not Exist With ID: " + subCategoryId));
 		Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 		Page<Product> page = this.productRepo.findBySubCategory(category, pageable);
-		PageableResponse<ProductDTO> response = Helper.getPageableResponse(page, ProductDTO.class);
-		return response;
+        return Helper.getPageableResponse(page, ProductDTO.class);
 	}
 
 	@Override
-	public PageableResponse<ProductDTO> getAllActiveProduct(Integer pageNumber, Integer pageSize, String sortBy,
+	public PageableResponse<ProductDTO> getAllActiveProduct(int pageNumber, int pageSize, String sortBy,
 			String sortDir) {
 		Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 		Page<Product> page = this.productRepo.findByisActiveTrue(pageable);
-		PageableResponse<ProductDTO> response = Helper.getPageableResponse(page, ProductDTO.class);
-		return response;
+        return Helper.getPageableResponse(page, ProductDTO.class);
 	}
 
 	@Override
-	public PageableResponse<ProductDTO> getAllProduct(Integer pageNumber, Integer pageSize, String sortBy,
+	public PageableResponse<ProductDTO> getAllProduct(int pageNumber, int pageSize, String sortBy,
 			String sortDir) {
 		Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 		Page<Product> page = this.productRepo.findAll(pageable);
-		PageableResponse<ProductDTO> response = Helper.getPageableResponse(page, ProductDTO.class);
-		return response;
+        return Helper.getPageableResponse(page, ProductDTO.class);
 	}
 
-	public String getDiscountPercentage(Double actualPrice, Double discountedPrice) {
-		Double discount = actualPrice - discountedPrice;
-		Double discountPercentage = (discount / actualPrice) * 100;
-		Long formattedDiscount = Math.round(discountPercentage);
+	public String getDiscountPercentage(double actualPrice, double discountedPrice) {
+		double discount = actualPrice - discountedPrice;
+		double discountPercentage = (discount / actualPrice) * 100;
+		long formattedDiscount = Math.round(discountPercentage);
 		return formattedDiscount + "%";
 	}
 
