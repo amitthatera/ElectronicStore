@@ -1,17 +1,7 @@
 package com.estore.controller;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-
-
-import com.estore.custom_exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,16 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.estore.custom_exception.ApiException;
 import com.estore.dto.UserDTO;
-import com.estore.entities.User;
 import com.estore.jwt_utils.JwtAuthRequest;
 import com.estore.jwt_utils.JwtAuthResponse;
 import com.estore.jwt_utils.JwtUtils;
 import com.estore.service_impl.UserServiceImpl;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -46,7 +30,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 
 @RestController
-@RequestMapping("/api/auth-user")
+@RequestMapping("/auth")
 @Tag(name = "AUTHENTICATION_CONTROLLER", description = "API's related to authenticate user.")
 public class AuthenticationController {
 
@@ -60,21 +44,13 @@ public class AuthenticationController {
 
 	private final AuthenticationManager authManager;
 
-	private final String googleClientId;
-
-	private final String newPassword;
-	
-	private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
-
 	public AuthenticationController(UserServiceImpl userService, UserDetailsService userDetailsService,
-									JwtUtils jwtUtils, ModelMapper modelMapper, AuthenticationManager authManager, @Value("${googleClientId}")String googleClientId, @Value("${newPassword}")String newPassword) {
+									JwtUtils jwtUtils, ModelMapper modelMapper, AuthenticationManager authManager) {
 		this.userService = userService;
 		this.userDetailsService = userDetailsService;
 		this.jwtUtils = jwtUtils;
 		this.modelMapper = modelMapper;
 		this.authManager = authManager;
-		this.googleClientId = googleClientId;
-		this.newPassword = newPassword;
 	}
 
 	@PostMapping("/register")
@@ -115,37 +91,6 @@ public class AuthenticationController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
-	@PostMapping("/google")
-	public ResponseEntity<JwtAuthResponse> loginWithGoogle(@RequestBody Map<String, Object> data) throws IOException{
-		String idToken = data.get("idToken").toString();
-		
-		NetHttpTransport httpTransport = new NetHttpTransport();
-		JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
-		
-		GoogleIdTokenVerifier.Builder verifier =  new GoogleIdTokenVerifier.Builder(httpTransport, jsonFactory).setAudience(Collections.singleton(googleClientId));
-		GoogleIdToken googleIdToken = GoogleIdToken.parse(verifier.getJsonFactory(), idToken);
-		GoogleIdToken.Payload payload = googleIdToken.getPayload();
-		
-		logger.info("Payload: {} ", payload);
-		
-		String email = payload.getEmail();
-		
-		User user = userService.findUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User Not Exist With Email: "+email));
-		
-		ResponseEntity<JwtAuthResponse> response = null;
-		if(user != null) {
-			response = this.login(JwtAuthRequest.builder()
-					.username(user.getEmailAddress())
-					.password(newPassword)
-					.build());
-		}else {
-			this.saveUser(email, data.get("firstName").toString(), data.get("lastName").toString());
-		}
-		
-		return response;
-	}
-	
-	
 	private void authenticateDetails(String username, String password) {
 		UsernamePasswordAuthenticationToken authToken = new 
 				UsernamePasswordAuthenticationToken(username, password);
@@ -155,18 +100,4 @@ public class AuthenticationController {
 			throw new ApiException("Incorrect Username or Password !!");
 		}
 	}
-	
-	private User saveUser(String email, String fname, String lName) {
-		UserDTO user = UserDTO.builder()
-				.firstName(fname)
-				.lastName(lName)
-				.emailAddress(email)
-				.password(newPassword)
-				.roles(new HashSet<>())
-				.build();
-		
-		UserDTO newUser = this.userService.createUser(user);
-		return this.modelMapper.map(newUser, User.class);
-	}
-
 }

@@ -39,7 +39,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/v1/product")
+@RequestMapping("/product")
 @Tag(name = "PRODUCT_CONTROLLER", description = "API's related to perform product crud operation.")
 public class ProductController {
 

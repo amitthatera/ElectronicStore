@@ -31,7 +31,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/v1/order")
+@RequestMapping("/order")
 @Tag(name = "ORDER_CONTROLLER", description = "API's related to manage user orders.")
 public class OrderController {
 

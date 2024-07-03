@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/v1/cart")
+@RequestMapping("/cart")
 @Tag(name = "CART_CONTROLLER", description = "API's use to perform cart related activities.")
 public class CartController {
 

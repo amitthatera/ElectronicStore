@@ -38,7 +38,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/v1/sub_category")
+@RequestMapping("/sub_category")
 @Tag(name = "SUB_CATEGORY_CONTROLLER", description = "API's related to perform SubCategory crud operation.")
 public class SubCategoryController {
 

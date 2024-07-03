@@ -42,7 +42,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import com.estore.custom_exception.ResourceNotFoundException;
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/user")
 @Tag(name = "USER_CONTROLLER", description = "API's related to perform user operation.")
 public class UserController {
 

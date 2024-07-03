@@ -3,11 +3,13 @@ package com.estore.configurations;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,17 +20,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import com.estore.jwt_utils.JwtAuthenticationEntryPoint;
 import com.estore.jwt_utils.JwtAuthenticationFilter;
 
 
-
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
-@EnableWebMvc
+@EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
 
 	@Autowired
@@ -49,15 +48,22 @@ public class SecurityConfiguration {
 	}
 
 	public static final String[] PUBLIC_URL = { 
-			"/api/auth-user/**", 
-			"/swagger-ui/**", 
+			"/api/v1/auth/**",
+			"/v3/api-docs",
+			"/v3/api-docs/**",
+			"/configuration/ui",
+			"/configuration/security",
+			"/swagger-ui/**",
 			"/webjars/**",
-			"/swagger-resources/**", 
-			"/v3/api-docs/**" };
+			"/swagger-resources",
+			"/swagger-resources/**",
+			"/swagger-ui.html"
+			};
 
 	@Bean
 	SecurityFilterChain getHttpSecurity(HttpSecurity http) throws Exception {
 			http
+					.cors(Customizer.withDefaults())
 					.csrf(AbstractHttpConfigurer::disable)
 					.authorizeHttpRequests(authorize -> authorize
 							.requestMatchers(PUBLIC_URL).permitAll()
@@ -75,10 +81,9 @@ public class SecurityConfiguration {
 	}
 
 	@Bean
-	FilterRegistrationBean<CorsFilter> corsFilter() {
-
+	@Order(Ordered.HIGHEST_PRECEDENCE)
+	public CorsFilter corsFilter() {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowCredentials(true);
 		configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:3000"));
@@ -91,11 +96,8 @@ public class SecurityConfiguration {
 		configuration.addAllowedMethod("PUT");
 		configuration.addAllowedMethod("OPTIONS");
 		configuration.setMaxAge(3600L);
-		
-		source.registerCorsConfiguration("/**", configuration);
 
-		FilterRegistrationBean<CorsFilter> filterRegistrationBean = new FilterRegistrationBean<>(new CorsFilter(source));
-		filterRegistrationBean.setOrder(-110);
-		return filterRegistrationBean;
+		source.registerCorsConfiguration("/**", configuration);
+		return new CorsFilter(source);
 	}
 }

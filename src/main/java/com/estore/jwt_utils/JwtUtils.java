@@ -19,9 +19,15 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtUtils{
 
-	@Value("${jwt.secret_key}")
-	private String SECRET_KEY;
-	
+	private final String SECRET_KEY;
+
+	private final long EXPIRATION_TIME;
+
+	public JwtUtils(@Value("${application.security.jwt.secret_key}")String SECRET_KEY, @Value("${application.security.jwt.expiration}")long EXPIRATION_TIME) {
+		this.SECRET_KEY = SECRET_KEY;
+		this.EXPIRATION_TIME = EXPIRATION_TIME;
+	}
+
 	public String extractUsername(String token) {
 		return extractClaims(token, Claims::getSubject);
 	}
@@ -41,7 +47,7 @@ public class JwtUtils{
 				.setClaims(extraClaims)
 				.setSubject(userDetails.getUsername())
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + 1000*60*24))
+				.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
 				.signWith(getSigninKey(), SignatureAlgorithm.HS256)
 				.compact();
 	}

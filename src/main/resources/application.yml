@@ -9,5 +9,9 @@ server:
       max-request-size: 10MB
       file-size-threshold: 200KB
 
+    context-path: /api/v1
 
+spring:
+  profiles:
+    active: dev
 
