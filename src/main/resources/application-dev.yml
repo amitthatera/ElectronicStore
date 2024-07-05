@@ -41,6 +41,3 @@ application:
     jwt:
       secret_key: ${SECRET_KEY}
       expiration: 8640000
-      private_key: classpath:certs/privateKey.pem
-      public_key: classpath:certs/publicKey.pem
-      passphrase: ${DECRYPT_PASS}
