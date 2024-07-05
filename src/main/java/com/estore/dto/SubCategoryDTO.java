@@ -21,6 +21,7 @@ import lombok.Setter;
 @Builder
 public class SubCategoryDTO {
 
+	@JsonIgnore
 	private String subCategoryId;
 
 	@NotBlank(message = "Name can not be blank !!")

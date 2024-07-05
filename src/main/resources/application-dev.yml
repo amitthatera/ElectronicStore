@@ -1,7 +1,10 @@
+server:
+  port: 8282
+
 # Database Configuration
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/electronics_store
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB:electronics-store}
     driver-class-name: org.postgresql.Driver
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
@@ -36,5 +39,8 @@ product:
 application:
   security:
     jwt:
-      secret_key: NxXdUp1F5BALveb08XiAE4ZqSkBy6Gqm
+      secret_key: ${SECRET_KEY}
       expiration: 8640000
+      private_key: classpath:certs/privateKey.pem
+      public_key: classpath:certs/publicKey.pem
+      passphrase: ${DECRYPT_PASS}

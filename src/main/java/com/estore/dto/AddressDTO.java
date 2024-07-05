@@ -1,5 +1,6 @@
 package com.estore.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.Setter;
 @Builder
 public class AddressDTO {
 
+	@JsonIgnore
 	private long addressId;
 	
 	@NotBlank(message = "Please Enter Details !!")

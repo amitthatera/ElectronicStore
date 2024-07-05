@@ -23,6 +23,7 @@ import lombok.Setter;
 @Builder
 public class UserDTO {
 
+	@JsonIgnore
 	private String userId;
 	
 	@NotBlank(message = "First Name can not be empty !!")
@@ -57,5 +58,6 @@ public class UserDTO {
 	private Set<AddressDTO> address = new HashSet<>();
 	
 	@Builder.Default
+	@JsonIgnore
 	private Set<RoleDTO> roles = new HashSet<>();
 }

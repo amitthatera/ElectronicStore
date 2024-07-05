@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.estore.utility.OrderStatus;
@@ -22,6 +23,7 @@ import lombok.Setter;
 @Builder
 public class OrderDTO {
 
+	@JsonIgnore
 	private String orderId;
 	
 	@Builder.Default

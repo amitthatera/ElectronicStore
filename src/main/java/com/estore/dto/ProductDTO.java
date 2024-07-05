@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -23,6 +24,7 @@ import lombok.Setter;
 @Builder
 public class ProductDTO {
 
+	@JsonIgnore
 	private String productId;
 	
 	@NotBlank(message = "Name can not be blank !!")

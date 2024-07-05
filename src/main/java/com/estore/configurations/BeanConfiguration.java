@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.estore.jwt_utils.JwtAuthenticationFilter;
 import com.estore.repository.UserRepositiry;
 
 @Configuration
@@ -34,10 +33,6 @@ public class BeanConfiguration {
 				.orElseThrow(() -> new UsernameNotFoundException("User Not Exist !!"));
 	}
 
-	@Bean
-	JwtAuthenticationFilter getAuthenticationFilter() {
-		return new JwtAuthenticationFilter();
-	}
 	
 	@Bean
     BCryptPasswordEncoder getPasswordEncoder() {

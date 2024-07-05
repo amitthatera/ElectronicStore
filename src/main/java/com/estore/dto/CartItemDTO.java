@@ -1,5 +1,6 @@
 package com.estore.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import lombok.Setter;
 @Builder
 public class CartItemDTO {
 
+	@JsonIgnore
 	private long cartItemId;
 	
 	private int quantity;

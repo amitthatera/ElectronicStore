@@ -3,7 +3,7 @@ services:
     container_name: electro-postgres
     image: postgres:15
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-gstore}
+      POSTGRES_DB: ${POSTGRES_DB:-electronics-store}
       POSTGRES_USER: ${POSTGRES_USER:-amit}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
       PGDATA: /var/lib/postgresql/data
@@ -15,7 +15,7 @@ services:
       - electronics-store
     restart: unless-stopped
     healthcheck:
-      test: pg_isready -U amit -d gstore
+      test: pg_isready -U amit -d electronics-store
       interval: 10s
       timeout: 3s
       retries: 3
